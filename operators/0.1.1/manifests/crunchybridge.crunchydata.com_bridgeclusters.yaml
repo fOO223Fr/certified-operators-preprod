@@ -1,0 +1,190 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: bridgeclusters.crunchybridge.crunchydata.com
+spec:
+  group: crunchybridge.crunchydata.com
+  names:
+    kind: BridgeCluster
+    listKind: BridgeClusterList
+    plural: bridgeclusters
+    singular: bridgecluster
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: BridgeCluster is the Schema for the bridgeclusters API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: defines the desired state of BridgeCluster
+            properties:
+              enable_ha:
+                description: flags whether to deploy the additional nodes to enable
+                  high availability
+                type: boolean
+              name:
+                description: represents the cluster name within Crunchy Bridge, must
+                  be unique per team
+                minLength: 5
+                type: string
+              pg_major_version:
+                description: selects the major version of PostgreSQL to deploy (e.g.
+                  12, 13)
+                minimum: 12
+                type: integer
+              plan:
+                description: identifies the Crunchy Bridge provioning plan (e.g. hobby-2,
+                  standard-8)
+                type: string
+              provider:
+                description: identifies the desired cloud infrastructure provider
+                enum:
+                - aws
+                - gcp
+                - azure
+                type: string
+              region:
+                description: identifies the requested deployment region within the
+                  provider (e.g. us-east-1)
+                type: string
+              storage:
+                description: identifies the size of PostgreSQL database volume in
+                  megabytes
+                maximum: 65535
+                minimum: 10
+                type: integer
+              team_id:
+                description: identifies the target team in which to create the cluster.
+                  Defaults to the personal team of the operator's Crunchy Bridge account
+                type: string
+            required:
+            - name
+            - pg_major_version
+            - plan
+            - provider
+            - region
+            - storage
+            type: object
+          status:
+            description: defines the observed state of BridgeCluster
+            properties:
+              cluster:
+                description: represents cluster detail from Crunchy Bridge
+                properties:
+                  cpu:
+                    description: represents the plan-allocated CPUs for the cluster
+                    type: integer
+                  created_at:
+                    description: represents the cluster creation time as known to
+                      Crunchy Bridge
+                    type: string
+                  ha_enabled:
+                    description: represents whether the cluster has high availability
+                      enabled
+                    type: boolean
+                  id:
+                    description: represents the Crunchy Bridge cluster identifier
+                    type: string
+                  major_version:
+                    description: represents the PostgreSQL major version number
+                    type: integer
+                  memory:
+                    description: represents the plan-allocated memory in gigabytes
+                    type: integer
+                  name:
+                    description: represents the cluster name provided in the request
+                    type: string
+                  provider_id:
+                    description: represents the infrastructure provider for the cluster
+                    type: string
+                  region_id:
+                    description: represents the region location for the cluster
+                    type: string
+                  storage:
+                    description: represents the database volume size in megabytes
+                    type: integer
+                  team_id:
+                    description: represents the ID of the team which owns the cluster
+                    type: string
+                  updated_at:
+                    description: represents the last change time internal to Crunchy
+                      Bridge
+                    type: string
+                required:
+                - cpu
+                - created_at
+                - ha_enabled
+                - id
+                - major_version
+                - memory
+                - name
+                - provider_id
+                - region_id
+                - storage
+                - team_id
+                - updated_at
+                type: object
+              connection:
+                description: provides non-user specific connection information
+                properties:
+                  connect_string:
+                    description: represents the database connection string without
+                      user information (e.g.postgres://p.fepkwudi6.example.com:5432/postgres)
+                    type: string
+                  database_name:
+                    description: identifies the initial database created with the
+                      cluster
+                    type: string
+                  parent_db_role:
+                    description: identifies the name of the database role from which
+                      bound user accounts inherit their permissions. Applications
+                      should use SET ROLE to ensure DDL executed can be shared among
+                      binding roles
+                    type: string
+                required:
+                - connect_string
+                - database_name
+                - parent_db_role
+                type: object
+              last_update:
+                description: last status update from the controller, does not correlate
+                  to cluster.updated_at
+                type: string
+              phase:
+                description: 'represents the cluster creation phase:     pending -
+                  creation not yet started     creating - provisioning in progress     ready
+                  - cluster provisioning complete'
+                type: string
+            required:
+            - cluster
+            - connection
+            - last_update
+            - phase
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
